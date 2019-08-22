@@ -18,6 +18,7 @@
 */
 package org.apache.cordova.dialogs;
 
+import android.content.Context;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -29,6 +30,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.view.inputmethod.InputMethodManager;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -314,6 +316,10 @@ public class Notification extends CordovaPlugin {
                 dlg.setCancelable(true);
 
                 dlg.setView(promptInput);
+
+                promptInput.requestFocus();
+                InputMethodManager imm = (InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
                 final JSONObject result = new JSONObject();
 
