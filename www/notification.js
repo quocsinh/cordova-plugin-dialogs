@@ -27,7 +27,8 @@ var platform = require('cordova/platform');
  */
 
 module.exports = {
-
+    IME_ACTION_NEXT: 5,
+    IME_ACTION_DONE: 6,
     /**
      * Open a native alert dialog, with a customizable title and button text.
      *
@@ -79,7 +80,7 @@ module.exports = {
      * @param {Array} buttonLabels          Array of strings for the button labels (default: ["OK","Cancel"])
      * @param {String} defaultText          Textbox input value (default: empty string)
      */
-    prompt: function (message, resultCallback, title, buttonLabels, defaultText) {
+    prompt: function (message, resultCallback, title, buttonLabels, defaultText, hintText, imeAction) {
         var _message = (typeof message === 'string' ? message : JSON.stringify(message));
         var _title = (typeof title === 'string' ? title : 'Prompt');
         var _buttonLabels = (buttonLabels || ['OK', 'Cancel']);
@@ -92,7 +93,10 @@ module.exports = {
         _buttonLabels = convertButtonLabels(_buttonLabels);
 
         var _defaultText = (defaultText || '');
-        exec(resultCallback, null, 'Notification', 'prompt', [_message, _title, _buttonLabels, _defaultText]);
+        var _hintText = (hintText || '');
+        var _imeAction = (imeAction || this.IME_ACTION_DONE);
+
+        exec(resultCallback, null, 'Notification', 'prompt', [_message, _title, _buttonLabels, _defaultText, _hintText, _imeAction]);
     },
 
     /**

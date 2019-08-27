@@ -31,6 +31,8 @@ import android.net.Uri;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.KeyEvent;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -53,6 +55,9 @@ import org.json.JSONObject;
 public class Notification extends CordovaPlugin {
 
     private static final String LOG_TAG = "Notification";
+
+    private static final int IME_ACTION_NEXT          = 5;
+    private static final int IME_ACTION_DONE          = 6;
 
     private static final String ACTION_BEEP           = "beep";
     private static final String ACTION_ALERT          = "alert";
@@ -106,7 +111,7 @@ public class Notification extends CordovaPlugin {
             return true;
         }
         else if (action.equals(ACTION_PROMPT)) {
-            this.prompt(args.getString(0), args.getString(1), args.getJSONArray(2), args.getString(3), callbackContext);
+            this.prompt(args.getString(0), args.getString(1), args.getJSONArray(2), args.getString(3), args.getString(4), args.getInt(5), callbackContext);
             return true;
         }
         else if (action.equals(ACTION_ACTIVITY_START)) {
@@ -295,7 +300,7 @@ public class Notification extends CordovaPlugin {
      * @param buttonLabels      A comma separated list of button labels (Up to 3 buttons)
      * @param callbackContext   The callback context.
      */
-    public synchronized void prompt(final String message, final String title, final JSONArray buttonLabels, final String defaultText, final CallbackContext callbackContext) {
+    public synchronized void prompt(final String message, final String title, final JSONArray buttonLabels, final String defaultText, final String hintText, final int imeAction, final CallbackContext callbackContext) {
 
         final CordovaInterface cordova = this.cordova;
 
@@ -310,19 +315,20 @@ public class Notification extends CordovaPlugin {
                 int promptInputTextColor = resources.getColor(android.R.color.primary_text_light);
                 promptInput.setTextColor(promptInputTextColor);
                 promptInput.setText(defaultText);
+                promptInput.setHint(hintText);
                 Builder dlg = createDialog(cordova); // new AlertDialog.Builder(cordova.getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 dlg.setMessage(message);
                 dlg.setTitle(title);
                 dlg.setCancelable(true);
-
                 dlg.setView(promptInput);
 
+                int _imeAction = EditorInfo.IME_ACTION_DONE;
+                if(imeAction == IME_ACTION_NEXT)
+                    _imeAction = EditorInfo.IME_ACTION_NEXT;
+                promptInput.setImeOptions(_imeAction);
                 promptInput.requestFocus();
-                InputMethodManager imm = (InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
                 final JSONObject result = new JSONObject();
-
                 // First button
                 if (buttonLabels.length() > 0) {
                     try {
@@ -396,7 +402,28 @@ public class Notification extends CordovaPlugin {
                     }
                 });
 
-                changeTextDirection(dlg);
+                InputMethodManager imm = (InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+
+                AlertDialog dialog = changeTextDirection(dlg);
+                promptInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                        if(actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE){
+                            imm.hideSoftInputFromWindow(promptInput.getWindowToken(), 0);
+                            dialog.dismiss();
+                            try {
+                                result.put("buttonIndex",1);
+                                result.put("input1", promptInput.getText().toString().trim().length()==0 ? defaultText : promptInput.getText());
+                            } catch (JSONException e) {
+                                LOG.d(LOG_TAG,"JSONException on first button.", e);
+                            }
+                            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, result));
+                            return true;
+                        }
+                        return false;
+                    }
+                });
             };
         };
         this.cordova.getActivity().runOnUiThread(runnable);
@@ -520,7 +547,7 @@ public class Notification extends CordovaPlugin {
     }
 
     @SuppressLint("NewApi")
-    private void changeTextDirection(Builder dlg){
+    private AlertDialog changeTextDirection(Builder dlg){
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         dlg.create();
         AlertDialog dialog =  dlg.show();
@@ -528,5 +555,6 @@ public class Notification extends CordovaPlugin {
             TextView messageview = (TextView)dialog.findViewById(android.R.id.message);
             messageview.setTextDirection(android.view.View.TEXT_DIRECTION_LOCALE);
         }
+        return dialog;
     }
 }
