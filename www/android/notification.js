@@ -25,15 +25,19 @@ var exec = require('cordova/exec');
  * Provides Android enhanced notification API.
  */
 module.exports = {
-    activityStart: function (title, message) {
+    activityStart: function (title, message, options) {
+        if (options === undefined) options = {};
+        options = Object.assign({cancelable: true}, options);
+        
         // If title and message not specified then mimic Android behavior of
         // using default strings.
+
         if (typeof title === 'undefined' && typeof message === 'undefined') {
             title = 'Busy';
             message = 'Please wait...';
         }
 
-        exec(null, null, 'Notification', 'activityStart', [title, message]);
+        exec(null, null, 'Notification', 'activityStart', [title, message, options]);
     },
 
     /**

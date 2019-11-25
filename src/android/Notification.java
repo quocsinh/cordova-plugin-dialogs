@@ -115,7 +115,7 @@ public class Notification extends CordovaPlugin {
             return true;
         }
         else if (action.equals(ACTION_ACTIVITY_START)) {
-            this.activityStart(args.getString(0), args.getString(1));
+            this.activityStart(args.getString(0), args.getString(1), args.getJSONObject(2));
         }
         else if (action.equals(ACTION_ACTIVITY_STOP)) {
             this.activityStop();
@@ -435,19 +435,21 @@ public class Notification extends CordovaPlugin {
      * @param title     Title of the dialog
      * @param message   The message of the dialog
      */
-    public synchronized void activityStart(final String title, final String message) {
+    public synchronized void activityStart(final String title, final String message, final JSONObject options) throws JSONException {
         if (this.spinnerDialog != null) {
             this.spinnerDialog.dismiss();
             this.spinnerDialog = null;
         }
         final Notification notification = this;
         final CordovaInterface cordova = this.cordova;
+        final boolean cancelable = options.getBoolean("cancelable");
+
         Runnable runnable = new Runnable() {
             public void run() {
                 notification.spinnerDialog = createProgressDialog(cordova); // new ProgressDialog(cordova.getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 notification.spinnerDialog.setTitle(title);
                 notification.spinnerDialog.setMessage(message);
-                notification.spinnerDialog.setCancelable(true);
+                notification.spinnerDialog.setCancelable(cancelable);
                 notification.spinnerDialog.setIndeterminate(true);
                 notification.spinnerDialog.setOnCancelListener(
                         new DialogInterface.OnCancelListener() {
