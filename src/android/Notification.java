@@ -477,7 +477,7 @@ public class Notification extends CordovaPlugin {
      * @param title     Title of the dialog
      * @param message   The message of the dialog
      */
-    public synchronized void progressStart(final String title, final String message, final JSONObject options) {
+    public synchronized void progressStart(final String title, final String message, final JSONObject options) throws JSONException {
         if (this.progressDialog != null) {
             this.progressDialog.dismiss();
             this.progressDialog = null;
