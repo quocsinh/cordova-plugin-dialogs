@@ -484,13 +484,15 @@ public class Notification extends CordovaPlugin {
         }
         final Notification notification = this;
         final CordovaInterface cordova = this.cordova;
+        final boolean cancelable = options.getBoolean("cancelable");
+
         Runnable runnable = new Runnable() {
             public void run() {
                 notification.progressDialog = createProgressDialog(cordova); // new ProgressDialog(cordova.getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 notification.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 notification.progressDialog.setTitle(title);
                 notification.progressDialog.setMessage(message);
-                notification.progressDialog.setCancelable(options.getBoolean("cancelable"));
+                notification.progressDialog.setCancelable(cancelable);
                 notification.progressDialog.setMax(100);
                 notification.progressDialog.setProgress(0);
                 notification.progressDialog.setOnCancelListener(
