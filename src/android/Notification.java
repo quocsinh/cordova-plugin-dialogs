@@ -490,7 +490,7 @@ public class Notification extends CordovaPlugin {
                 notification.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 notification.progressDialog.setTitle(title);
                 notification.progressDialog.setMessage(message);
-                notification.progressDialog.setCancelable(options.getBoolean('cancelable'));
+                notification.progressDialog.setCancelable(options.getBoolean("cancelable"));
                 notification.progressDialog.setMax(100);
                 notification.progressDialog.setProgress(0);
                 notification.progressDialog.setOnCancelListener(
