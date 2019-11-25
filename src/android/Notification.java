@@ -121,7 +121,7 @@ public class Notification extends CordovaPlugin {
             this.activityStop();
         }
         else if (action.equals(ACTION_PROGRESS_START)) {
-            this.progressStart(args.getString(0), args.getString(1));
+            this.progressStart(args.getString(0), args.getString(1), args.getJSONObject(2));
         }
         else if (action.equals(ACTION_PROGRESS_VALUE)) {
             this.progressValue(args.getInt(0));
@@ -477,7 +477,7 @@ public class Notification extends CordovaPlugin {
      * @param title     Title of the dialog
      * @param message   The message of the dialog
      */
-    public synchronized void progressStart(final String title, final String message) {
+    public synchronized void progressStart(final String title, final String message, final JSONObject options) {
         if (this.progressDialog != null) {
             this.progressDialog.dismiss();
             this.progressDialog = null;
@@ -490,7 +490,7 @@ public class Notification extends CordovaPlugin {
                 notification.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 notification.progressDialog.setTitle(title);
                 notification.progressDialog.setMessage(message);
-                notification.progressDialog.setCancelable(true);
+                notification.progressDialog.setCancelable(options.getBoolean('cancelable');
                 notification.progressDialog.setMax(100);
                 notification.progressDialog.setProgress(0);
                 notification.progressDialog.setOnCancelListener(

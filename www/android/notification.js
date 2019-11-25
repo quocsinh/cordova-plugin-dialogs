@@ -33,7 +33,7 @@ module.exports = {
             message = 'Please wait...';
         }
 
-        exec(null, null, 'Notification', 'activityStart', [ title, message ]);
+        exec(null, null, 'Notification', 'activityStart', [title, message]);
     },
 
     /**
@@ -50,9 +50,13 @@ module.exports = {
      *            title Title of the progress dialog.
      * @param {String}
      *            message Message to display in the dialog.
+     * @param {Object}
+     *            options custom the dialog.
      */
-    progressStart: function (title, message) {
-        exec(null, null, 'Notification', 'progressStart', [ title, message ]);
+    progressStart: function (title, message, options) {
+        if (options === undefined) options = {};
+        options = Object.assign({cancelable: true}, options);
+        exec(null, null, 'Notification', 'progressStart', [title, message, options]);
     },
 
     /**
@@ -69,6 +73,6 @@ module.exports = {
      *            value 0-100
      */
     progressValue: function (value) {
-        exec(null, null, 'Notification', 'progressValue', [ value ]);
+        exec(null, null, 'Notification', 'progressValue', [value]);
     }
 };
